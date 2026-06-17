@@ -1,0 +1,17 @@
+# ====== Banco de Dados Local ======
+# Ignora o banco SQLite local para não subir dados de teste ao GitHub
+*.db
+*.sqlite
+*.sqlite3
+
+# ====== Caches do Python ======
+# Ignora pastas de bytecode que o Python gera automaticamente ao rodar o código
+__pycache__/
+*.py[cod]
+*$py.class
+
+# ====== Caches de Ferramentas de Teste ======
+# Ignora os arquivos de histórico e cache que o Pytest cria ao rodar os testes
+.pytest_cache/
+.coverage
+htmlcov/
