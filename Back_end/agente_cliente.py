@@ -4,7 +4,7 @@ from google.genai import types
 from cliente import cadastrar_cliente
 from app import inicializar_banco
 
-CHAVE_DO_GEMINI = "AQ.Ab8RN6JAUha_IiYdltkfbGUIFBq_Ir36UfrwqOEBg109lV6CrA"
+CHAVE_DO_GEMINI = "SUA_CHAVE_AQUI"
 
 # 2. Inicializa o cliente oficial novo passando a chave de forma explícita
 client = genai.Client(api_key=CHAVE_DO_GEMINI)
