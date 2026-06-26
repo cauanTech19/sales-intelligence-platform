@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field, field_validator, ValidationError
+from pydantic import BaseModel, EmailStr, Field, field_validator, ValidationError, model_validator
 
 class ClienteSchema(BaseModel):
     """Schema de validação para os dados de entrada de um Cliente.
@@ -14,48 +14,32 @@ class ClienteSchema(BaseModel):
         endereco (str | None): Endereço opcional do cliente.
         telefone (str | None): Telefone opcional (será limpo para 10 ou 11 dígitos).
     """
-    nome: str = Field(..., min_length=3)
+    nome: str = Field(..., min_length=3, max_length=100)
     cpf: str
     email: EmailStr
     endereco: str | None = None  
     telefone: str | None = None
 
+    # 1. VALIDADOR DE HIGIENIZAÇÃO (Unificado e inteligente)
     @field_validator('nome', 'endereco', 'telefone', 'cpf', mode='before')
     @classmethod
-    def fazer_strip_strings(cls, valor: str) -> str:
-        """Remove espaços em branco sobressalentes nas pontas das strings.
-
-        Roda em modo 'before', agindo diretamente nos dados brutos enviados.
-        """
-        if isinstance(valor, str):
-            return valor.strip()
-        return valor
-
-    @field_validator('nome', 'email', 'cpf', mode='before')
-    @classmethod
-    def validar_dados_vazios(cls, valor: str) -> str:
-        """Garante que os campos obrigatórios não recebam tipos inválidos ou textos vazios.
-
-        Args:
-            valor (str): O dado que está sendo validado.
-            info: O contexto do Pydantic contendo metadados como o 'field_name'.
-
-        Returns:
-            str: A string limpa e validada.
-
-        Raises:
-            ValueError: Se o valor não for uma string ou se a string estiver vazia.
-        """
-        # 1. Checa se o argumento NÃO é uma string
-        if not isinstance(valor, str):
-            raise ValueError("Os campos precisa ser um texto válido.")
-        
-        # 2. Agora que temos certeza que é str, fazemos o strip e checamos se está vazio
-        valor_limpo = valor.strip()
-        if not valor_limpo:  
-            raise ValueError("O campo não pode ficar vazio.")
+    def higienizar_e_verificar_vazio(cls, valor: str, info) -> str:
+        """Faz o strip automático e garante que campos obrigatórios não fiquem vazios."""
+        # Se o campo opcional vier como None, deixa passar para o Pydantic tratar
+        if valor is None:
+            return valor
             
-        return valor_limpo
+        if not isinstance(valor, str):
+            return valor
+            
+        valor_limpo = valor.strip()
+        
+        # Se for string mas ficou vazia pós-strip nos campos obrigatórios
+        if valor_limpo == "" and info.field_name in ['nome', 'email', 'cpf']:
+            raise ValueError("O campo não pode ficar vazio ou conter apenas espaços.")
+            
+        return valor_limpo        
+
     
     @field_validator('telefone')
     @classmethod
@@ -68,7 +52,7 @@ class ClienteSchema(BaseModel):
         Raises:
             ValueError: Se o telefone contiver letras ou tamanho inválido.
         """
-        if valor is None or valor == "":
+        if valor is None:
             return None
 
         telefone_limpo = (
@@ -94,17 +78,55 @@ class ClienteSchema(BaseModel):
         Remove pontos e traços, checando se a string resultante é puramente numérica.
 
         Raises:
-            TypeError: Se o CPF não for recebido como texto.
+            ValueError: Se o CPF não for recebido como texto.
             ValueError: Se contiver letras ou não possuir 11 dígitos.
-        """
-        if not isinstance(valor, str):
-            raise TypeError("O CPF precisa ser uma string.")
-            
+        """            
         cpf_limpo = valor.replace(".", "").replace("-", "").strip()
         
         if not cpf_limpo.isdigit():
             raise ValueError("O CPF deve conter apenas números.")
+        
         if len(cpf_limpo) != 11:
             raise ValueError("O CPF precisa ter exatamente 11 números.")
             
         return cpf_limpo
+
+
+
+class ProdutoSchema(BaseModel):
+    """Schema de validação para criação e atualização de produtos.
+    
+    Aplica as regras de negócio estritas antes de permitir a persistência no banco.
+    """
+    # 1. Nome obrigatório (Pydantic garante por não ter valor padrão) e limpa espaços
+    nome: str = Field(..., min_length=1, max_length=100)
+    descricao: str | None = Field(None, max_length=255)
+    
+    # 2. Preço de venda maior que zero (gt = greater than / maior que)
+    preco_venda: float = Field(..., gt=0.0)
+    preco_custo: float = Field(..., gt=0.0)
+    
+    # 3. Quantidade de estoque nunca pode ficar negativa (ge = greater or equal / maior ou igual)
+    quantidade_estoque: int = Field(0, ge=0)
+    
+    # 4. Produto deve pertencer a uma categoria (ID inteiro válido)
+    categoria_id: int = Field(..., gt=0)
+
+    # Validador extra para higienizar o nome (remover espaços extras nas pontas)
+    @field_validator('nome')
+    @classmethod
+    def limpar_nome(cls, nome: str) -> str:
+        return nome.strip()
+
+    # Validação customizada avançada: Margem de lucro 
+    @model_validator(mode='after')
+    def verificar_preco(self) -> ProdutoSchema:
+        # Se o preco_custo já foi validado e estiver disponível nos dados informados
+        if self.preco_venda < self.preco_custo:
+            raise ValueError("O preço de venda não pode ser menor do que o preço de custo (margem de lucro negativa).")
+        return self
+
+
+class CategoriaSchema(BaseModel):
+    nome: str = Field(..., min_length=3, max_length=50)
+    descricao: str = Field(..., max_length=255)

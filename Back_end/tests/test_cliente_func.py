@@ -2,11 +2,19 @@ import pytest
 from datetime import datetime
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base
-from Back_end.cliente import Base, Cliente, cadastrar_cliente, buscar_cliente, editar_cliente, desativar_cliente, reativar_cliente
+from Back_end.cliente import  cadastrar_cliente, buscar_cliente, editar_cliente, desativar_cliente, reativar_cliente
 from sqlalchemy.exc import IntegrityError
+from models import Base, Cliente
 # ==============================================================================
 # CONFIGURAÇÃO DOS FIXTURES (AMBIENTE DE INTEGRAÇÃO)
 # ==============================================================================
+
+
+# # 1. Diz para o Windows que a pasta atual é a raiz de módulos do Python
+# $env:PYTHONPATH="."
+
+# # 2. Roda o pytest novamente
+# pytest
 
 @pytest.fixture
 def db_engine():

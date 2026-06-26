@@ -1,44 +1,12 @@
 from datetime import datetime, timezone
-from sqlalchemy.orm import Mapped, DeclarativeBase, mapped_column, Session
+from sqlalchemy.orm import Session
 from sqlalchemy import String, select
 from validador import ClienteSchema, ValidationError
-from app import inicializar_banco
 from sqlalchemy.exc import IntegrityError
+from models import Cliente, engine
 
 
-class Base(DeclarativeBase):
-    """Classe base declarativa do SQLAlchemy para o mapeamento de tabelas."""
-    ...
-
-class Cliente(Base):
-    """Modelo ORM que representa a tabela 'cliente' no banco de dados.
-
-    Mapeia os atributos do objeto Python diretamente para as colunas do SQL.
-    """
-    __tablename__ = 'cliente'
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-    nome: Mapped[str] = mapped_column(String(100), nullable=False)
-    telefone : Mapped[str] = mapped_column(String(100), nullable=True)
-    email: Mapped[str] = mapped_column(String(100), nullable=False)
-    endereco:  Mapped[str] = mapped_column(String(100), nullable=True)
-    data_cadastro: Mapped[datetime] = mapped_column(
-        default=lambda: datetime.now(timezone.utc)
-    )    
-    cpf:  Mapped[str] = mapped_column(String(14), unique=True, nullable=False)
-    ativo: Mapped[bool] = mapped_column(default=True)
-
-
-# Inicialização segura do banco de dados ao carregar o módulo
-try:
-    engine = inicializar_banco()
-    Base.metadata.create_all(engine)
-except Exception:
-    print("O sistema não pôde ser iniciado porque o banco de dados está indisponível.")
-    exit(1)
-
-
-def cadastrar_cliente(engine, nome: str, cpf: str, email: str, endereco: str, telefone: str) -> None:
+def cadastrar_cliente(engine, nome: str, cpf: str, email: str, endereco: str = None, telefone: str = None) -> None:
     """Executa o fluxo completo de validação e persistência de um novo cliente.
 
     Os dados passam primeiro pelo motor de validação do ClienteSchema (Pydantic). 
@@ -68,6 +36,7 @@ def cadastrar_cliente(engine, nome: str, cpf: str, email: str, endereco: str, te
             db.add(novo_cliente)
             db.commit()
             print(f"Cliente {dados_validados.nome} cadastrado com sucesso!")
+            return True
 
     except ValidationError as e:
         print("\n[Erro de Validação]:")
@@ -75,7 +44,6 @@ def cadastrar_cliente(engine, nome: str, cpf: str, email: str, endereco: str, te
         traducoes = {
             "string_too_short": "O campo deve conter pelo menos 3 caracteres.",
             "missing": "Este campo é obrigatório.",
-            "value_error": "O valor fornecido é inválido."
         }
         
         for erro in e.errors():
@@ -85,21 +53,46 @@ def cadastrar_cliente(engine, nome: str, cpf: str, email: str, endereco: str, te
             
             if tipo_erro in traducoes:
                 mensagem = traducoes[tipo_erro]
+
                 ctx = erro.get("ctx")
                 if ctx:
                     mensagem = mensagem.format(**ctx)
+            
+            # 2. Se for um ValueError vindo dos seus validadores (CPF ou Telefone)
+            elif tipo_erro == "value_error":
+                # Remove o prefixo "Value error, " que o Pydantic adiciona automaticamente
+                mensagem = mensagem.replace("Value error, ", "")
             
             if campo == "email" and ("email" in tipo_erro or "email" in erro['msg'].lower()):
                 mensagem = "O formato do e-mail é inválido. Use o padrão: usuario@dominio.com"
                 
             print(f" -> Campo '{campo}': {mensagem}")
+            
+        return False
 
     # ==============================================================================
     # TRATAMENTO DE DUPLICIDADE (CPF UNIQUE)
     # ==============================================================================
-    except IntegrityError:
-        print(f"\n[Erro de Cadastro]: Não foi possível cadastrar o cliente '{nome}'.")
-        print(f" -> O CPF '{cpf}' já está vinculado a outro usuário no sistema.")
+    except IntegrityError as e:
+        erro_msg = str(e).lower()
+        
+        print(f"\n[Erro de Integridade no Banco]: Não foi possível cadastrar '{nome}'.")
+        
+        # 1. Verifica se o problema foi a restrição UNIQUE do CPF
+        if "unique constraint failed" in erro_msg and "cpf" in erro_msg:
+            print(f" -> O CPF '{cpf}' já está vinculado a outro usuário no sistema.")
+            
+        # 2. Verifica se o problema foi o NOT NULL do telefone ou outro campo
+        elif "not null constraint failed" in erro_msg:
+            # Extrai ou indica qual coluna falhou
+            print(" -> Erro: Uma coluna obrigatória recebeu um valor nulo (None). Verifique os campos opcionais.")
+            print(f" -> Detalhe técnico: {e.orig}") # e.orig mostra o erro limpo do sqlite
+            
+        # 3. Caso seja qualquer outro IntegrityError que não mapeamos
+        else:
+            print(f" -> Erro inesperado de integridade: {e.orig}")
+            
+        return False
 
 
 def listar_cliente(engine) -> None:
@@ -364,5 +357,7 @@ def reativar_cliente(engine, identificador) -> bool:
         db.commit()
         print(f"Cliente '{cliente_para_reativar.nome}' (ID: {cliente_para_reativar.id}) reativado com sucesso no sistema!")
         return True
+    
 
 
+cadastrar_cliente(engine, "Cauan", "123.567.897-06", "cauan@gmail.com", "Rua do barcos 235", "11982116413")
