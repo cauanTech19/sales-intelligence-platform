@@ -118,4 +118,4 @@ def editar_categoria(engine, categoria_id: int, novo_nome: str, descricao: str) 
 
 
 
-excluir_categoria(engine, 1)
+cadastrar_categoria(engine, "exemplo_produto", "Apenas exemplo")

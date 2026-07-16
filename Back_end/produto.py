@@ -270,20 +270,20 @@ def atualizar_estoque(engine, produto_id: int, quantidade_movimentada: int) -> b
 
 
 # Teste 1: Um produto padrão completo
-# cadastrar_produto(
-#     engine=engine,
-#     nome="Shape Maple Pro 8.0",
-#     descricao="Shape de alta performance 100% Maple Canadense",
-#     preco_venda=1200.90,
-#     preco_custo=1000.00,
-#     quantidade_estoque=15,
-#     categoria_id=1 # Certifique-se de que a categoria ID 1 existe no banco!
-# )
+cadastrar_produto(
+    engine=engine,
+    nome="Shape Maple Pro 8.0",
+    descricao="Shape de alta performance 100% Maple Canadense",
+    preco_venda=1200.90,
+    preco_custo=1000.00,
+    quantidade_estoque=15,
+    categoria_id=1 # Certifique-se de que a categoria ID 1 existe no banco!
+)
 
 
-valor = {
-    "nome": "skate",
-    "descricao": "SK8 na Véia",
-}
+# valor = {
+#     "nome": "skate",
+#     "descricao": "SK8 na Véia",
+# }
 
-atualizar_estoque(engine, 1, -100)
+# atualizar_estoque(engine, 1, -100)

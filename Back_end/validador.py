@@ -1,4 +1,6 @@
 from pydantic import BaseModel, EmailStr, Field, field_validator, ValidationError, model_validator
+from models import FormaPagamento
+from typing import Literal
 
 class ClienteSchema(BaseModel):
     """Schema de validação para os dados de entrada de um Cliente.
@@ -130,3 +132,17 @@ class ProdutoSchema(BaseModel):
 class CategoriaSchema(BaseModel):
     nome: str = Field(..., min_length=3, max_length=50)
     descricao: str = Field(..., max_length=255)
+
+
+
+class ItemVendaSchema(BaseModel):
+    produto_id: int
+    quantidade: int = Field(..., gt=0, description="A quantidade deve ser estritamente maior que zero.")
+    preco_unitario: float = Field(..., gt=0, description="O preço unitário deve ser maior que zero.")
+
+
+class PagamentoSchema(BaseModel):
+    venda_id: int = Field(..., description="ID da venda associada.")
+    valor: float = Field(..., gt=0, description="O valor deve ser maior que zero.")
+    # Usando Literal para blindar as strings válidas aceitas no banco/Enum
+    forma_pagamento: Literal["PIX", "CREDITO", "DEBITO"]

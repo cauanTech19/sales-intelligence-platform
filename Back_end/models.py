@@ -3,6 +3,31 @@ from sqlalchemy.orm import Mapped, mapped_column, DeclarativeBase, relationship
 from datetime import datetime
 from app import inicializar_banco
 from zoneinfo import ZoneInfo
+from enum import Enum
+
+class StatusVenda(str, Enum):
+    PENDENTE = 'PENDENTE'
+    CONCLUIDA = 'CONCLUIDA'
+    CANCELADA = 'CANCELADA'
+
+class FormaPagamento(str,Enum):
+    PIX = 'PIX'
+    CREDITO = 'CREDITO'
+    DEBITO = 'DEBITO'
+
+class StatusPagamento(str, Enum):
+    PENDENTE = "PENDENTE"
+    APROVADO = "APROVADO"
+    RECUSADO = "RECUSADO"
+    ESTORNADO = "ESTORNADO"
+
+
+class TipoMovimentacao(str, Enum):
+    ENTRADA = "ENTRADA"
+    SAIDA = "SAIDA"
+    AJUSTE = "AJUSTE"
+
+
 
 class Base(DeclarativeBase):
     ...
@@ -15,7 +40,7 @@ class Cliente(Base):
     """
     __tablename__ = 'cliente'
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     nome: Mapped[str] = mapped_column(String(100), nullable=False)
     telefone : Mapped[str | None] = mapped_column(String(100), nullable=True)
     email: Mapped[str] = mapped_column(String(100), nullable=False)
@@ -35,7 +60,7 @@ class Produto(Base):
     """
     __tablename__ = 'produto'
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     nome: Mapped[str] = mapped_column(String(100), nullable=False)
     descricao: Mapped[str | None] = mapped_column(String(255), nullable=True)
     
@@ -64,7 +89,7 @@ class Categoria(Base):
     """Modelo ORM que representa a tabela de categorias de forma dinâmica no sistema."""
     __tablename__ = 'categoria'
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     nome: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
     descricao: Mapped[str | None] = mapped_column(String(255), nullable=True)
     ativo: Mapped[bool] = mapped_column(Boolean, default=True)
@@ -75,6 +100,79 @@ class Categoria(Base):
     produtos: Mapped[list["Produto"]] = relationship("Produto", back_populates="categoria_objeto")
 
 
+
+class Venda(Base):
+    __tablename__ = "vendas"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    
+    # Relacionamento com Cliente (Chave Estrangeira)
+    cliente_id: Mapped[int] = mapped_column(ForeignKey("cliente.id"), nullable=False)
+    
+    # Dados da movimentação
+    data_venda: Mapped[datetime] = mapped_column (DateTime, default=lambda: datetime.now(ZoneInfo("America/Sao_Paulo")))
+    valor_total: Mapped[float] = mapped_column(Float, default=0.0, nullable=False)
+    status: Mapped[StatusVenda] = mapped_column(String, default=StatusVenda.PENDENTE, nullable=False)
+    forma_pagamento: Mapped[FormaPagamento] = mapped_column(String, nullable=False)
+
+    # cascade="all, delete-orphan" garante que se uma venda sumir, os itens dela somem junto
+    itens: Mapped[list["ItemVenda"]] = relationship(back_populates="venda", cascade="all, delete-orphan")
+
+
+
+class ItemVenda(Base):
+    __tablename__ = "itens_venda"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    venda_id: Mapped[int] = mapped_column(ForeignKey("vendas.id"), nullable=False)
+    produto_id: Mapped[int] = mapped_column(ForeignKey("produto.id"), nullable=False)
+    
+    # Guardamos a foto do momento: a quantidade vendida e o preço praticado na hora
+    quantidade: Mapped[int] = mapped_column(Integer, nullable=False)
+    preco_unitario: Mapped[float] = mapped_column(Float, nullable=False)
+
+    # Relacionamentos
+    venda: Mapped["Venda"] = relationship(back_populates="itens")
+    produto: Mapped["Produto"] = relationship()
+
+
+
+class Pagamento(Base):
+    __tablename__ = "pagamentos"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    
+    # Vinculação estrita com a Venda (Chave Estrangeira)
+    venda_id: Mapped[int] = mapped_column(ForeignKey("vendas.id"), nullable=False)
+    
+    # Detalhes do fluxo financeiro
+    valor: Mapped[float] = mapped_column(Float, nullable=False)
+    forma_pagamento: Mapped[FormaPagamento] = mapped_column(String, nullable=False)
+    status: Mapped[StatusPagamento] = mapped_column(String, default=StatusPagamento.PENDENTE, nullable=False)
+    data_pagamento: Mapped[datetime] = mapped_column (DateTime, default=lambda: datetime.now(ZoneInfo("America/Sao_Paulo")))
+
+    # Relacionamento para conseguir acessar os dados da venda direto pelo objeto pagamento (ex: pagamento.venda.cliente)
+    venda: Mapped["Venda"] = relationship()
+
+
+
+class MovimentacaoEstoque(Base):
+    __tablename__ = "movimentacoes_estoque"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    
+    # Vinculação com o Produto (Chave Estrangeira)
+    produto_id: Mapped[int] = mapped_column(ForeignKey("produto.id"), nullable=False)
+    
+    # Detalhes da movimentação
+    tipo_movimentacao: Mapped[TipoMovimentacao] = mapped_column(String, nullable=False)
+    quantidade: Mapped[int] = mapped_column(Integer, nullable=False)
+    motivo: Mapped[str] = mapped_column(String, nullable=False) 
+    data_movimentacao: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(ZoneInfo("America/Sao_Paulo")))
+
+
+    # Relacionamento
+    produto: Mapped["Produto"] = relationship()
 
 
 try:

@@ -261,21 +261,16 @@ def listar_clientes_inativos(engine) -> None:
     with Session(engine) as db:
         resultado = db.scalars(comando)
         
-        # 1. Tentamos pegar o primeiro cliente do gerador
-        # Se o gerador estiver vazio, o 'next' retorna o valor padrão (None)
         primeiro_cliente = next(resultado, None)
         
-        # 2. Em vez do contador, fazemos o IF direto no primeiro elemento!
         if primeiro_cliente is None:
             print("Nenhum cliente inativo encontrado no sistema.")
             return
 
         print("\n--- LISTA DE CLIENTES INATIVOS ---")
         
-        # 3. Imprime o primeiro que usamos para testar
         print(f"ID: {primeiro_cliente.id} | Nome: {primeiro_cliente.nome} | CPF: {primeiro_cliente.cpf}")
         
-        # 4. Continua listando o restante do fluxo sem carregar a memória
         for cliente in resultado:
             print(f"ID: {cliente.id} | Nome: {cliente.nome} | CPF: {cliente.cpf}")
 
@@ -360,4 +355,3 @@ def reativar_cliente(engine, identificador) -> bool:
     
 
 
-cadastrar_cliente(engine, "Cauan", "123.567.897-06", "cauan@gmail.com", "Rua do barcos 235", "11982116413")
