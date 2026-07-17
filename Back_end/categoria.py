@@ -27,31 +27,37 @@ def cadastrar_categoria(engine, nome: str, descricao: str) -> bool:
 # ==============================================================================
 # 2. REGRA DE EXCLUSÃO (Bloqueando se houver produtos vinculados)
 # ==============================================================================
-def excluir_categoria(engine, categoria_id: int) -> bool:
-    """Remove uma categoria do sistema apenas se não houver produtos associados a ela."""
+def desativar_categoria(engine, categoria_id: int) -> bool:
+    """Desativa uma categoria (soft delete) apenas se não houver produtos ativos vinculados."""
     with Session(engine) as db:
-        # 1. Verifica se existem produtos ativos vinculados a essa categoria
-        # Faz um SELECT COUNT na tabela de produtos filtrando pelo id da categoria
-        comando_verificacao = select(Produto).where(Produto.categoria_id == categoria_id)
+        # 1. Verifica se existem produtos ATIVOS vinculados a essa categoria
+        comando_verificacao = select(Produto).where(
+            Produto.categoria_id == categoria_id,
+            Produto.ativo == True
+        )
         produtos_vinculados = db.scalars(comando_verificacao).first()
         
         if produtos_vinculados:
-            print(f"\n[Bloqueio de Segurança]: Não é possível excluir a categoria ID {categoria_id}.")
-            print(f" -> Existem produtos vinculados a ela (Exemplo: '{produtos_vinculados.nome}').")
-            print(" -> Dica: Mova ou desative os produtos antes de excluir a categoria.")
+            print(f"\n[Bloqueio de Segurança]: Não é possível desativar a categoria ID {categoria_id}.")
+            print(f" -> O produto ativo '{produtos_vinculados.nome}' depende dela.")
+            print(" -> Dica: Desative ou mude a categoria dos produtos antes de desativar a categoria pai.")
             return False
             
-        # 2. Se não houver nenhum produto usando a categoria, localiza e deleta
+        # 2. Localiza a categoria para alternar o estado
         categoria = db.get(Categoria, categoria_id)
         if not categoria:
             print(f"[Aviso] Categoria ID {categoria_id} não encontrada.")
             return False
             
-        db.delete(categoria)
-        db.commit()
-        print(f"Categoria '{categoria.nome}' excluída com sucesso!")
-        return True
+        if not categoria.ativo:
+            print(f"[Aviso] A categoria '{categoria.nome}' já está desativada.")
+            return True
 
+        # Altera o estado em vez de deletar
+        categoria.ativo = False
+        db.commit()
+        print(f"Categoria '{categoria.nome}' desativada com sucesso!")
+        return True
 
 def buscar_categoria(engine, categoria_id: int) -> Categoria | None:
     """Busca uma categoria diretamente pela chave primária (B-Tree).
@@ -118,4 +124,3 @@ def editar_categoria(engine, categoria_id: int, novo_nome: str, descricao: str) 
 
 
 
-cadastrar_categoria(engine, "exemplo_produto", "Apenas exemplo")

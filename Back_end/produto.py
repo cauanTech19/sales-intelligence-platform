@@ -5,12 +5,6 @@ from datetime import datetime
 from validador import ProdutoSchema, ValidationError
 from models import Produto, engine
 
-# cadastrar_produto()
-# editar_produto()
-# alterar_preco()
-# atualizar_estoque()
-# listar_produtos()
-# buscar_produto()
 
 def cadastrar_produto(engine, nome: str, descricao: str | None, preco_venda: float, preco_custo: float, quantidade_estoque: int, categoria_id: int) -> bool:
     """Executa o fluxo completo de validação e persistência de um novo produto.
@@ -230,7 +224,7 @@ def atualizar_estoque(engine, produto_id: int, quantidade_movimentada: int) -> b
     
     Args:
         quantidade_movimentada (int): Pode ser positiva (ex: +10 para compras)
-                                      ou negativa (ex: -2 para vendas).
+        ou negativa (ex: -2 para vendas).
     """
     if not isinstance(produto_id, int) or isinstance(produto_id, bool):
         return False
@@ -269,21 +263,5 @@ def atualizar_estoque(engine, produto_id: int, quantidade_movimentada: int) -> b
 
 
 
-# Teste 1: Um produto padrão completo
-cadastrar_produto(
-    engine=engine,
-    nome="Shape Maple Pro 8.0",
-    descricao="Shape de alta performance 100% Maple Canadense",
-    preco_venda=1200.90,
-    preco_custo=1000.00,
-    quantidade_estoque=15,
-    categoria_id=1 # Certifique-se de que a categoria ID 1 existe no banco!
-)
 
 
-# valor = {
-#     "nome": "skate",
-#     "descricao": "SK8 na Véia",
-# }
-
-# atualizar_estoque(engine, 1, -100)

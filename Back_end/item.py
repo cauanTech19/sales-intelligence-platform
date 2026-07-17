@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from pydantic import ValidationError
 from models import Produto
-from validador import ItemVendaSchema # Seu schema importado
+from validador import ItemVendaSchema
 
 def validar_e_preparar_item(engine, produto_id: int, quantidade: int, preco_unitario: float) -> dict | None:
     """Valida as regras de negócio do item individualmente antes de ir para o carrinho.

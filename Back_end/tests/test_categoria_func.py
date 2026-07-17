@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from models import Base, Categoria, Produto
 from Back_end.categoria import (  # Ajuste para o nome real do seu arquivo
     cadastrar_categoria,
-    excluir_categoria,
+    desativar_categoria,
     buscar_categoria,
     listar_categorias,
     editar_categoria
@@ -95,11 +95,12 @@ def test_excluir_categoria_sem_produtos_deve_funcionar(banco_categoria):
     """Garante que uma categoria vazia (sem nenhum produto) possa ser deletada do sistema."""
     cadastrar_categoria(banco_categoria, nome="Acessórios", descricao="...")
     
-    resultado = excluir_categoria(banco_categoria, categoria_id=1)
+    resultado = desativar_categoria(banco_categoria, categoria_id=1)
     assert resultado is True
     
+    
     with Session(banco_categoria) as db:
-        assert db.get(Categoria, 1) is None
+        assert db.get(Categoria.ativo, 1) is False
 
 
 def test_excluir_categoria_com_produtos_vinculados_deve_ser_bloqueado(banco_categoria):
@@ -120,7 +121,7 @@ def test_excluir_categoria_com_produtos_vinculados_deve_ser_bloqueado(banco_cate
         db.commit()
         
     # 3. Tenta deletar a categoria ID 1 -> Deve retornar False pelo select de verificação
-    resultado_exclusao = excluir_categoria(banco_categoria, categoria_id=1)
+    resultado_exclusao = desativar_categoria(banco_categoria, categoria_id=1)
     
     assert resultado_exclusao is False
     

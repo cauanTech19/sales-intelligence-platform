@@ -73,8 +73,18 @@ def consultar_historico_produto(engine, produto_id: int) -> list[MovimentacaoEst
             MovimentacaoEstoque.produto_id == produto_id
         ).order_by(MovimentacaoEstoque.data_movimentacao.desc())
         
-        return list(db.scalars(comando).all())
-    
+        movimentacoes = db.scalars(comando).all()
+        
+        # Boa prática: Mapear para estruturas de dados simples (dicts) antes de fechar a Session
+        resultado = []
+        for mov in movimentacoes:
+            resultado.append({
+                "id": mov.id,
+                "tipo": mov.tipo_movimentacao.value if hasattr(mov.tipo_movimentacao, 'value') else mov.tipo_movimentacao,
+                "quantidade": mov.quantidade,
+                "motivo": mov.motivo,
+                "data": mov.data_movimentacao.strftime("%d/%m/%Y %H:%M:%S")
+            })
+        return resultado    
 
 
-ajustar_estoque_manual(engine, 1, 500, "teste de modificação #3")

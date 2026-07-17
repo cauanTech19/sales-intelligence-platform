@@ -1,7 +1,7 @@
 from datetime import datetime
 from sqlalchemy.orm import Session, Mapped
 from sqlalchemy import select
-from models import engine, Venda, ItemVenda, Produto, StatusVenda, FormaPagamento, TipoMovimentacao, MovimentacaoEstoque
+from models import Venda, ItemVenda, Produto, StatusVenda, FormaPagamento, TipoMovimentacao, MovimentacaoEstoque
 
 def calcular_total(itens_da_venda: list[dict]) -> float:
     """Calcula matematicamente o valor total da venda com base nos itens fornecidos.
@@ -80,7 +80,6 @@ def cancelar_venda(engine, venda_id: int) -> bool:
     with Session(engine) as db:
         try:
             with db.begin():
-                # Busca a venda carregando seus itens juntos
                 venda = db.get(Venda, venda_id)
                 
                 if not venda:
@@ -135,9 +134,3 @@ def listar_vendas(engine) -> list[Venda]:
         comando = select(Venda).order_by(Venda.data_venda.desc())
         return list(db.scalars(comando).all())
 
-
-itens_sucesso = [
-    {"produto_id": 1, "quantidade": 3, "preco_unitario": 599.90},
-]
-
-criar_venda(engine, cliente_id=1, forma_pagamento="PIX", itens_validados=itens_sucesso)
