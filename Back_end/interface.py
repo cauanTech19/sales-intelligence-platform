@@ -1,10 +1,10 @@
-# app.py
 import streamlit as st
 from layout_cliente import renderizar_cliente
 from layout_produto import renderizar_produto
 from layout_categoria import renderizar_categoria
 from layout_movimentacao import renderizar_movimentacao
 from layout_vendas import renderizar_vendas
+from layout_dashboard import renderizar_dashboard
 
 # 1. Configuração da página (deve ser o primeiro comando Streamlit)
 st.set_page_config(page_title="E-commerce Admin", layout="wide")
@@ -32,12 +32,9 @@ st.markdown("""
 st.sidebar.markdown("<h2 style='text-align: center; color: white;'>PDV Admin</h2>", unsafe_allow_html=True)
 st.sidebar.markdown("---")
 
-# 4. Inicializa o estado da página ativa no session_state (padrão é Início)
 if "menu_atual" not in st.session_state:
     st.session_state.menu_atual = "Início"
 
-# 5. Renderização dos Botões Verticais com Ícones (Emojis)
-# O parâmetro 'type' muda dinamicamente para 'primary' se a página estiver selecionada
 if st.sidebar.button("Início", type="primary" if st.session_state.menu_atual == "Início" else "secondary"):
     st.session_state.menu_atual = "Início"
     st.rerun()
@@ -60,6 +57,10 @@ if st.sidebar.button("Movimentações", type="primary" if st.session_state.menu_
 
 if st.sidebar.button("Vendas", type="primary" if st.session_state.menu_atual == "Vendas" else "secondary"):
     st.session_state.menu_atual = "Vendas"
+    st.rerun()
+
+if st.sidebar.button("Dashboard", type="primary" if st.session_state.menu_atual == "Dashboard" else "secondary"):
+    st.session_state.menu_atual = "Dashboard"
     st.rerun()
 
 # 6. Rodapé da Barra Lateral com informações úteis do sistema
@@ -97,3 +98,6 @@ elif st.session_state.menu_atual == "Movimentação":
     
 elif st.session_state.menu_atual == "Vendas":
     renderizar_vendas()
+
+elif st.session_state.menu_atual == "Dashboard":
+    renderizar_dashboard()
