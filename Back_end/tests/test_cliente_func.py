@@ -2,7 +2,7 @@ import pytest
 from datetime import datetime
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base
-from Back_end.cliente import  cadastrar_cliente, buscar_cliente, editar_cliente, desativar_cliente, reativar_cliente
+from cliente import  cadastrar_cliente, buscar_cliente, editar_cliente, desativar_cliente, reativar_cliente
 from sqlalchemy.exc import IntegrityError
 from models import Base, Cliente
 # ==============================================================================

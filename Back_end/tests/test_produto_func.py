@@ -2,7 +2,7 @@ import pytest
 from datetime import datetime
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import declarative_base, Session
-from Back_end.produto import  cadastrar_produto, editar_produto, alterar_preco, atualizar_estoque, buscar_produto, listar_produtos
+from produto import  cadastrar_produto, editar_produto, alterar_preco, atualizar_estoque, buscar_produto, listar_produtos
 from sqlalchemy.exc import IntegrityError
 from models import Base, Produto, Categoria
 

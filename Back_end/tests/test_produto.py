@@ -1,6 +1,6 @@
 import pytest
 from pydantic import ValidationError
-from Back_end.validador import ProdutoSchema
+from validador import ProdutoSchema
 
 # ==============================================================================
 # 1. TESTES DE SUCESSO (HAPPY PATH)

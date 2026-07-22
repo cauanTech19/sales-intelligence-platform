@@ -1,6 +1,6 @@
 import pytest
 from pydantic import ValidationError
-from Back_end.validador import ClienteSchema
+from validador import ClienteSchema
 
 
 # ==============================================================================

@@ -24,7 +24,6 @@ def ia_cadastrar_cliente(nome: str, cpf: str, email: str, endereco: str = None, 
     sucesso = cadastrar_cliente(engine, nome=nome, cpf=cpf, email=email, endereco=endereco, telefone=telefone)
     if sucesso:
         return f"Sucesso: O cliente {nome} foi cadastrado com sucesso no banco de dados."
-    
     return f"Erro: Não foi possível cadastrar o cliente {nome}. Houve uma violação nas regras de validação ou o CPF já existe no sistema. Verifique os alertas no console."
 
 

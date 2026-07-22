@@ -151,9 +151,10 @@ def test_buscar_e_listar_vendas(banco_vendas):
     
     # Testa buscar_venda
     venda_buscada = buscar_venda(banco_vendas, venda_id=1)
+    assert venda_buscada.id == 1
     assert venda_buscada is not None
     assert len(venda_buscada.itens) == 1
-    
+  
     # Testa buscar_venda com ID bizarro/inválido
     assert buscar_venda(banco_vendas, "ID_STRING") is None
     

@@ -4,6 +4,8 @@ from datetime import datetime
 from app import inicializar_banco
 from zoneinfo import ZoneInfo
 from enum import Enum
+import hashlib
+
 
 class StatusVenda(str, Enum):
     PENDENTE = 'PENDENTE'
@@ -32,6 +34,30 @@ class TipoMovimentacao(str, Enum):
 class Base(DeclarativeBase):
     ...
 
+class Usuario(Base):
+    """Modelo ORM que representa a tabela 'usuario' no banco de dados."""
+
+    __tablename__ = "usuario"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    nome: Mapped[str] = mapped_column(String(100), nullable=False)
+    email: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
+    senha_hash: Mapped[str] = mapped_column(String(255), nullable=False)
+    cargo: Mapped[str] = mapped_column(String(50), default="admin")  # Ex: 'admin', 'vendedor'
+    ativo: Mapped[bool] = mapped_column(default=True)
+    data_cadastro: Mapped[datetime] = mapped_column(
+        default=lambda: datetime.now(ZoneInfo("America/Sao_Paulo"))
+    )
+
+    @staticmethod
+    def gerar_hash_senha(senha: str) -> str:
+        """Gera um hash SHA-256 seguro para a senha."""
+        return hashlib.sha256(senha.encode("utf-8")).hexdigest()
+
+    def verificar_senha(self, senha: str) -> bool:
+        """Verifica se a senha digitada corresponde ao hash salvo."""
+        return self.senha_hash == hashlib.sha256(senha.encode("utf-8")).hexdigest()
+    
 
 class Cliente(Base):
     """Modelo ORM que representa a tabela 'cliente' no banco de dados.

@@ -139,5 +139,5 @@ def test_consultar_historico_deve_retornar_na_ordem_correta(banco_estoque):
     historico = consultar_historico_produto(banco_estoque, produto_id=1)
     assert len(historico) == 2
     # O mais recente vem primeiro por conta do order_by desc
-    assert "Segundo" in historico[0].motivo
-    assert "Primeiro" in historico[1].motivo
+    assert "Segundo" in historico[0]["motivo"]
+    assert "Primeiro" in historico[1]["motivo"]

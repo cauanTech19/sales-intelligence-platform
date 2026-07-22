@@ -2,7 +2,7 @@ import pytest
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import Session
 from models import Base, Categoria, Produto
-from Back_end.categoria import (  # Ajuste para o nome real do seu arquivo
+from categoria import (  # Ajuste para o nome real do seu arquivo
     cadastrar_categoria,
     desativar_categoria,
     buscar_categoria,
@@ -98,9 +98,10 @@ def test_excluir_categoria_sem_produtos_deve_funcionar(banco_categoria):
     resultado = desativar_categoria(banco_categoria, categoria_id=1)
     assert resultado is True
     
-    
     with Session(banco_categoria) as db:
-        assert db.get(Categoria.ativo, 1) is False
+        cat = db.get(Categoria, 1) 
+        assert cat.ativo is False
+
 
 
 def test_excluir_categoria_com_produtos_vinculados_deve_ser_bloqueado(banco_categoria):

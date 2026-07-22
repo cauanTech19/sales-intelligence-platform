@@ -146,3 +146,53 @@ class PagamentoSchema(BaseModel):
     valor: float = Field(..., gt=0, description="O valor deve ser maior que zero.")
     # Usando Literal para blindar as strings válidas aceitas no banco/Enum
     forma_pagamento: Literal["PIX", "CREDITO", "DEBITO"]
+
+
+class UsuarioCreateSchema(BaseModel):
+    """Valida a criação do usuário (Admin Inicial ou novos cadastros)."""
+
+    nome: str = Field(..., min_length=3, max_length=100)
+    email: EmailStr
+    senha: str = Field(..., min_length=6, max_length=50)
+
+    @field_validator("nome")
+    @classmethod
+    def tratar_nome(cls, nome: str) -> str:
+        nome = nome.strip()
+        if len(nome) < 3:
+            raise ValueError("O nome deve ter pelo menos 6 caracteres.")
+        return nome.title()
+
+    @field_validator("email")
+    @classmethod
+    def tratar_email(cls, email: str) -> str:
+        return email.strip().lower()
+
+
+class UsuarioLoginSchema(BaseModel):
+    """Valida os dados de entrada da tela de Login."""
+
+    email: EmailStr
+    senha: str = Field(..., min_length=1)
+
+    @field_validator("email")
+    @classmethod
+    def tratar_email(cls, email: str) -> str:
+        return email.strip().lower()
+
+
+class AlterarSenhaSchema(BaseModel):
+    """Valida a alteração de senha do usuário."""
+
+    senha_atual: str = Field(..., min_length=1)
+    nova_senha: str = Field(
+        ..., min_length=6, description="A nova senha deve ter no mínimo 6 caracteres"
+    )
+    confirmar_nova_senha: str
+
+    @field_validator("confirmar_nova_senha")
+    @classmethod
+    def senhas_coincidem(cls, senha: str, info) -> str:
+        if "nova_senha" in info.data and senha != info.data["nova_senha"]:
+            raise ValueError("A confirmação da nova senha não coincide com a nova senha.")
+        return senha

@@ -1,7 +1,7 @@
 from datetime import datetime
-from sqlalchemy.orm import Session, Mapped
+from sqlalchemy.orm import Session, Mapped, selectinload
 from sqlalchemy import select
-from models import Venda, ItemVenda, Produto, StatusVenda, FormaPagamento, TipoMovimentacao, MovimentacaoEstoque
+from models import Venda, ItemVenda, Produto, StatusVenda, FormaPagamento, TipoMovimentacao, MovimentacaoEstoque, engine
 
 def calcular_total(itens_da_venda: list[dict]) -> float:
     """Calcula matematicamente o valor total da venda com base nos itens fornecidos.
@@ -116,21 +116,21 @@ def cancelar_venda(engine, venda_id: int) -> bool:
             return False
 
 
-def buscar_venda(engine, venda_id: int) -> Mapped[Venda] | None:
+def buscar_venda(engine, venda_id: int) -> Venda | None:
     """Busca os detalhes de uma venda e seus itens associados."""
     if not isinstance(venda_id, int) or isinstance(venda_id, bool):
         return None
         
     with Session(engine) as db:
-        venda = db.get(Venda, venda_id)
-        if venda:
-            return venda
-        return None
-
+        # O selectinload força a carregar a relação 'itens' ANTES da session fechar
+        comando = select(Venda).options(selectinload(Venda.itens)).where(Venda.id == venda_id)
+        return db.scalar(comando)
 
 def listar_vendas(engine) -> list[Venda]:
     """Retorna o histórico completo de todas as vendas do sistema."""
     with Session(engine) as db:
-        comando = select(Venda).order_by(Venda.data_venda.desc())
+        comando = select(Venda).options(selectinload(Venda.itens)).order_by(Venda.data_venda.desc())
         return list(db.scalars(comando).all())
+
+
 
