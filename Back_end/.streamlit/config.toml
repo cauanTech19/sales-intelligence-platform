@@ -3,13 +3,13 @@
 backgroundColor = "#000000"
 
 # Fundo secundário (Sidebar e cards): Um tom ligeiramente mais claro para dar contraste
-secondaryBackgroundColor = "#161F30"
+secondaryBackgroundColor = "#131212ad"
 
 # Texto principal: Branco puro para máxima leitura
 textColor = "#FFFFFF"
 
-# Cor de destaque (Botões, foco e links): Ciano Neon tecnológico
-primaryColor = "#00F0FF"
+# Cor de destaque (Botões, foco e links): red 
+primaryColor = "#ff002b"
 
 # Fonte limpa e moderna
 font = "sans serif"

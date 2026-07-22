@@ -9,10 +9,10 @@ from layout_categoria import renderizar_categoria
 from layout_movimentacao import renderizar_movimentacao
 from layout_vendas import renderizar_vendas
 from layout_dashboard import renderizar_dashboard
-
-
+from agente_ia import renderizar_ia
 
 engine = inicializar_banco()
+
 # 1. Configuração da página (DEVE SER O PRIMEIRO COMANDO STREAMLIT)
 st.set_page_config(page_title="E-commerce Admin", layout="wide")
 
@@ -29,7 +29,7 @@ st.markdown("""
             margin-bottom: 5px;
         }
         [data-testid="stSidebar"] {
-            background-color: #111625;
+            background-color: #000000;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -145,6 +145,10 @@ with Session(engine) as session:
             st.session_state.menu_atual = "Dashboard"
             st.rerun()
 
+        if st.sidebar.button("Agente", type="primary" if st.session_state.menu_atual == "Agente" else "secondary"):
+            st.session_state.menu_atual = "Agente"
+            st.rerun()
+
         # Rodapé da Barra Lateral com Dados Dinâmicos do Usuário e Logout
         st.sidebar.markdown("---")
         st.sidebar.caption(f"👤 **Usuário:** {st.session_state['usuario_nome']}")
@@ -191,3 +195,6 @@ with Session(engine) as session:
 
         elif st.session_state.menu_atual == "Dashboard":
             renderizar_dashboard()
+
+        elif st.session_state.menu_atual == "Agente":
+            renderizar_ia(engine)
