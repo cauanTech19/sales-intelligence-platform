@@ -35,7 +35,7 @@ def renderizar_movimentacao():
     # COLUNA 1: FORMULÁRIO DE AJUSTE MANUAL
     # -------------------------------------------------------------------------
     with col_acao:
-        st.subheader("⚡ Novo Ajuste Manual")
+        st.subheader("Novo Ajuste Manual")
         
         with st.form("form_ajuste_estoque", clear_on_submit=True):
             tipo_operacao = st.radio(

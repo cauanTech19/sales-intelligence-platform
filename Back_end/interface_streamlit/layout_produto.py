@@ -11,10 +11,10 @@ def renderizar_produto():
 
     # Criando abas para não tumultuar a tela do usuário
     aba_visualizar, aba_cadastrar, aba_movimentar, aba_edicao = st.tabs([
-        "🔍 Visualizar Estoque", 
-        "➕ Cadastrar Novo", 
-        "⚡ Movimentações e Preços",
-        "🔍 Buscar e Editar Produtos"
+        "Visualizar Estoque", 
+        "Cadastrar Novo", 
+        "Movimentações e Preços",
+        "Buscar e Editar Produtos"
     ])
 
     # ----------------------------------------------------
@@ -143,55 +143,52 @@ def renderizar_produto():
                     else:
                         st.error("Operação Recusada. Verifique se a margem de lucro não ficou negativa.")
             
-            with aba_edicao:
-                # Dentro do bloco de abas de produtos, adicione ou atualize esta seção:
-                st.subheader("Buscar e Modificar Cadastro de Produto")
+    with aba_edicao:
+        st.subheader("Buscar e Modificar Cadastro de Produto")
 
-                busca_id = st.text_input("Digite o ID do produto para buscar:")
+        # Força o campo a aceitar e retornar apenas INTEIRO (step=1 e min_value=0)
+        busca_id = st.number_input("Digite o ID do produto para buscar:", min_value=0, step=1, value=0)
 
-                if busca_id:
-                    if not busca_id.isdigit():
-                        st.error("Por favor, insira um número de ID válido.")
-                    else:
-                        prod = buscar_produto(engine, busca_id)
-        
-                if prod:
-                    st.write("---")
-                    st.success(f"📦 **Produto Localizado:** {prod.nome} (ID: {prod.id})")
+        prod = None
+
+        # Se o usuário digitou um ID maior que 0
+        if busca_id > 0:
+            # Passa explicitamente como int(busca_id)
+            prod = buscar_produto(engine, int(busca_id))
+
+            if prod:
+                st.write("---")
+                st.success(f"📦 **Produto Localizado:** {prod.nome} (ID: {prod.id})")
+                
+                # Formulário blindado para edição cadastral
+                with st.form("form_edicao_produto"):
+                    st.write("### 📝 Alterar Informações Cadastrais")
                     
-                    # Formulário blindado para edição cadastral
-                    with st.form("form_edicao_produto"):
-                        st.write("### 📝 Alterar Informações Cadastrais")
-                        
-                        col1, col2 = st.columns(2)
-                        with col1:
-                            novo_nome = st.text_input("Nome do Produto:", value=prod.nome)
-                            nova_categoria = st.number_input("ID da Categoria:", value=int(prod.categoria_id), min_value=1, step=1)
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        novo_nome = st.text_input("Nome do Produto:", value=prod.nome)
+                        nova_categoria = st.number_input("ID da Categoria:", value=int(prod.categoria_id), min_value=1, step=1)
 
-                        with col2:
-                            # Se descrição for None, joga uma string vazia para o campo de texto
-                            nova_descricao = st.text_area("Descrição:", value=prod.descricao or "")
+                    with col2:
+                        nova_descricao = st.text_area("Descrição:", value=prod.descricao or "")
+                    
+                    btn_salvar_edicao = st.form_submit_button("Salvar Modificações", type="primary")
+                    
+                    if btn_salvar_edicao:
+                        dados_novos = {
+                            "nome": novo_nome,
+                            "descricao": nova_descricao if nova_descricao.strip() else None,
+                            "categoria_id": int(nova_categoria)
+                        }
                         
-                        # Botão de envio dentro do escopo correto do formulário
-                        btn_salvar_edicao = st.form_submit_button("Salvar Modificações", type="primary")
+                        f = io.StringIO()
+                        with redirect_stdout(f):
+                            sucesso = editar_produto(engine, prod.id, dados_novos)
                         
-                        if btn_salvar_edicao:
-                            dados_novos = {
-                                "nome": novo_nome,
-                                "descricao": nova_descricao if nova_descricao.strip() else None,
-                                "categoria_id": int(nova_categoria)
-                            }
-                            
-                            # Intercepta os prints do console para o Streamlit ler
-                            f = io.StringIO()
-                            with redirect_stdout(f):
-                                sucesso = editar_produto(engine, prod.id, dados_novos)
-                            
-                            retorno_console = f.getvalue()
-                            if sucesso:
-                                st.success("Cadastro atualizado com sucesso!")
-                                st.rerun()  # Atualiza os dados na tela instantaneamente
-                            else:
-                                st.error("Falha ao salvar alterações. Verifique as regras de negócio no console.")
-                else:
-                    st.error("Produto ativo não encontrado com o ID informado.")
+                        if sucesso:
+                            st.success("Cadastro atualizado com sucesso!")
+                            st.rerun()
+                        else:
+                            st.error("Falha ao salvar alterações. Verifique as regras de negócio no console.")
+            else:
+                st.error("Produto ativo não encontrado com o ID informado.")

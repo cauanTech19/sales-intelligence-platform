@@ -16,9 +16,9 @@ def renderizar_categoria():
     st.title("🗂️ Gerenciamento de Categorias")
     
     tab_listar, tab_editar, tab_desativar = st.tabs([
-        "📋 Listar e Cadastrar", 
-        "📝 Editar Categoria", 
-        "🔒 Desativar Categoria"  # Nome da aba atualizado
+        "Listar e Cadastrar", 
+        "Editar Categoria", 
+        "Desativar Categoria"  # Nome da aba atualizado
     ])
     
     # --- ABA 1: LISTAR E CADASTRAR ---

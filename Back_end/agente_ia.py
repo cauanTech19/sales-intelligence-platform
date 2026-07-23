@@ -1,4 +1,6 @@
 import os
+import tomllib
+from pathlib import Path
 import streamlit as st
 from google import genai
 from google.genai import types
@@ -128,14 +130,39 @@ def criar_ferramentas_ia(session: Session):
 
 
 def obter_chave_api() -> str:
-    """Busca a chave API no st.secrets com fallback seguro sem estourar exceção."""
+    """Busca a chave API no st.secrets com fallback seguro lendo o arquivo secrets.toml diretamente."""
+    # 1. Tenta pegar pelo st.secrets do Streamlit
     try:
         if "GEMINI_API_KEY" in st.secrets:
-            return st.secrets["GEMINI_API_KEY"]
+            chave = st.secrets["GEMINI_API_KEY"]
+            if chave and chave != "SUA_CHAVE_AQUI":
+                return chave
     except Exception:
         pass
-    return os.getenv("GEMINI_API_KEY", "")
 
+    # 2. Tenta pegar por variável de ambiente
+    chave_env = os.getenv("GEMINI_API_KEY")
+    if chave_env:
+        return chave_env
+
+    # 3. Fallback: Lê diretamente o arquivo secrets.toml subindo até a raiz do projeto
+    caminhos_para_testar = [
+        Path(__file__).resolve().parent.parent / ".streamlit" / "secrets.toml", # Strorage_IA/.streamlit/secrets.toml
+        Path.cwd() / ".streamlit" / "secrets.toml"
+    ]
+
+    for caminho in caminhos_para_testar:
+        if caminho.exists():
+            try:
+                with open(caminho, "rb") as f:
+                    dados = tomllib.load(f)
+                    chave_toml = dados.get("GEMINI_API_KEY", "")
+                    if chave_toml:
+                        return chave_toml
+            except Exception:
+                pass
+
+    return ""
 
 def renderizar_ia(session: Session):
     """Função principal da tela do Assistente IA."""
@@ -160,8 +187,11 @@ def renderizar_ia(session: Session):
         with st.chat_message("user"):
             st.markdown(prompt)
 
-        # 4. Instancia o Client e o Chat "fresco" para esta requisição (evita HTTP client closed)
         api_key = obter_chave_api()
+        if not api_key:
+            st.error("❌ A chave 'GEMINI_API_KEY' não foi encontrada no arquivo .streamlit/secrets.toml!")
+            st.stop()
+
         client = genai.Client(api_key=api_key)
         tools = criar_ferramentas_ia(session)
 
