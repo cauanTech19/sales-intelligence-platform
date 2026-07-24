@@ -2,7 +2,7 @@ import pytest
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import Session
 from models import Base, Categoria, Produto
-from categoria import (  # Ajuste para o nome real do seu arquivo
+from categoria import (
     cadastrar_categoria,
     desativar_categoria,
     buscar_categoria,
@@ -81,10 +81,22 @@ def test_listar_categorias_deve_retornar_em_ordem_alfabetica(banco_categoria):
     lista = listar_categorias(banco_categoria)
     
     assert len(lista) == 3
-    # Verifica a ordenação do select(...).order_by(Categoria.nome)
+    # Verifica a ordenação do select(banco_categoria...).order_by(Categoria.nome)
     assert lista[0].nome == "Amortecedores"
     assert lista[1].nome == "Rodas"
     assert lista[2].nome == "Trucks"
+
+
+def test_buscar_categorias(banco_categoria):
+    """Garante que a listagem traga todas as linhas ordenadas por nome."""
+    cadastrar_categoria(banco_categoria, nome="Rodas", descricao="...")
+    
+    busca = buscar_categoria(banco_categoria, 1)
+
+    assert busca is not None
+    assert busca.ativo is True
+    assert busca.id == 1
+    assert busca.nome == "Rodas"
 
 
 # ==============================================================================

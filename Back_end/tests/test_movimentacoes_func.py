@@ -2,7 +2,7 @@ import pytest
 from datetime import datetime
 from sqlalchemy import create_engine, event, select
 from sqlalchemy.orm import Session
-from models import Base, Produto, MovimentacaoEstoque, TipoMovimentacao, Categoria
+from models import Base, Produto, MovimentacaoEstoque, Categoria
 from movimentacao import ajustar_estoque_manual, consultar_historico_produto
 
 # ==============================================================================

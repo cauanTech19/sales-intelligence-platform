@@ -41,7 +41,6 @@ def renderizar_vendas():
                 with st.form("form_add_item", clear_on_submit=True):
                     c1, c2 = st.columns(2)
                     with c1:
-                        # Exibe o preço unitário em um retângulo travado e elegante
                         st.text_input(
                             "Preço Unitário (R$):", 
                             value=f"{produto_selecionado.preco_venda:.2f}", 
@@ -50,7 +49,7 @@ def renderizar_vendas():
                     with c2:
                         qtd = st.number_input("Quantidade:", min_value=1, max_value=produto_selecionado.quantidade_estoque if produto_selecionado.quantidade_estoque > 0 else 1, step=1, value=1)
                     
-                    if st.form_submit_button("Adicionar ao Carrinho", use_container_width=True):
+                    if st.form_submit_button("Adicionar ao Carrinho",  width="stretch"):
                         string_buffer = io.StringIO()
                         with redirect_stdout(string_buffer):
                             item_ok = validar_e_preparar_item(engine, produto_selecionado.id, qtd, produto_selecionado.preco_venda)
@@ -69,7 +68,7 @@ def renderizar_vendas():
                 if not st.session_state.carrinho:
                     st.info("Carrinho vazio.")
                 else:
-                    st.dataframe(st.session_state.carrinho, use_container_width=True, hide_index=True)
+                    st.dataframe(st.session_state.carrinho,  width="stretch", hide_index=True)
                     if st.button("🗑️ Limpar Tudo"):
                         st.session_state.carrinho = []
                         st.rerun()
@@ -82,7 +81,7 @@ def renderizar_vendas():
                 cliente_id = st.number_input("ID do Cliente:", min_value=1, step=1, value=1)
                 forma_pgto = st.selectbox("Forma de Pagamento:", options=[f.value for f in FormaPagamento])
                 
-                btn_fechar = st.button("🚀 Concluir Venda", type="primary", use_container_width=True, disabled=len(st.session_state.carrinho) == 0)
+                btn_fechar = st.button("🚀 Concluir Venda", type="primary",  width="stretch", disabled=len(st.session_state.carrinho) == 0)
                 
                 if btn_fechar:
                     itens_puros = []
@@ -133,7 +132,7 @@ def renderizar_vendas():
                     "Status": v.status.value if hasattr(v.status, 'value') else v.status
                 })
             
-            st.dataframe(dados_tabela, use_container_width=True, hide_index=True)
+            st.dataframe(dados_tabela, width="stretch", hide_index=True)
             
             st.divider()
             st.subheader("🚨 Estorno e Cancelamento de Venda")

@@ -24,9 +24,6 @@ def cadastrar_categoria(engine, nome: str, descricao: str) -> bool:
         return False
 
 
-# ==============================================================================
-# 2. REGRA DE EXCLUSÃO (Bloqueando se houver produtos vinculados)
-# ==============================================================================
 def desativar_categoria(engine, categoria_id: int) -> bool:
     """Desativa uma categoria (soft delete) apenas se não houver produtos ativos vinculados."""
     with Session(engine) as db:

@@ -147,7 +147,7 @@ def obter_chave_api() -> str:
 
     # 3. Fallback: Lê diretamente o arquivo secrets.toml subindo até a raiz do projeto
     caminhos_para_testar = [
-        Path(__file__).resolve().parent.parent / ".streamlit" / "secrets.toml", # Strorage_IA/.streamlit/secrets.toml
+        Path(__file__).resolve().parent.parent / ".streamlit" / "secrets.toml", 
         Path.cwd() / ".streamlit" / "secrets.toml"
     ]
 

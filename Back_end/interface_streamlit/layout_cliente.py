@@ -10,7 +10,7 @@ from cliente import (
     reativar_cliente, 
     buscar_cliente_inativo
 )
-from models import Cliente  # Certifique-se de que o nome do seu modelo/importação está correto
+from models import Cliente 
 
 engine = inicializar_banco()
 

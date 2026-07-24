@@ -9,7 +9,6 @@ engine = inicializar_banco()
 def renderizar_produto():
     st.title("📦 Gerenciamento de Produtos")
 
-    # Criando abas para não tumultuar a tela do usuário
     aba_visualizar, aba_cadastrar, aba_movimentar, aba_edicao = st.tabs([
         "Visualizar Estoque", 
         "Cadastrar Novo", 

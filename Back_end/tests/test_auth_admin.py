@@ -3,7 +3,7 @@ from pydantic import ValidationError
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from auth_admin import alterar_senha, autenticar, criar_usuario_admin_inicial
-from models import Usuario, Base
+from models import Base
 
 
 # ==========================================

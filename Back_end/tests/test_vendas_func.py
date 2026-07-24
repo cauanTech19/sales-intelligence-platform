@@ -2,7 +2,7 @@ import pytest
 from datetime import datetime
 from sqlalchemy import create_engine, event, select
 from sqlalchemy.orm import Session
-from models import Base, Venda, ItemVenda, Produto, MovimentacaoEstoque, StatusVenda, TipoMovimentacao, Categoria, Cliente
+from models import Base, Venda, Produto, MovimentacaoEstoque, StatusVenda, TipoMovimentacao, Categoria, Cliente
 from vendas import calcular_total, criar_venda, cancelar_venda, buscar_venda, listar_vendas
 
 # ==============================================================================

@@ -102,7 +102,7 @@ elif not st.session_state["autenticado"]:
     col1, col2, col3 = st.columns([1, 1.2, 1])
     
     with col2:
-        st.markdown("<h2 style='text-align: center;'>Acesso ao PDV Admin</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align: center;'>Login</h2>", unsafe_allow_html=True)
         
         with st.form("form_login"):
             email_input = st.text_input("E-mail")

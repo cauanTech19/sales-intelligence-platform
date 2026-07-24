@@ -2,7 +2,7 @@ import pytest
 from datetime import datetime
 from sqlalchemy import create_engine, event, select
 from sqlalchemy.orm import Session
-from models import Base, Venda, Pagamento, StatusVenda, StatusPagamento, Cliente, FormaPagamento
+from models import Base, Venda, Pagamento, StatusVenda, StatusPagamento, Cliente
 from pagamento import registrar_pagamento, cancelar_pagamento, listar_pagamentos
 
 # ==============================================================================
