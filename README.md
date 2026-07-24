@@ -31,17 +31,17 @@ Um sistema completo de **Ponto de Venda (PDV)** e **Controle Financeiro/Estoque*
 
 ---
 
-## Executar a aplicação:
-git clone [https://github.com/cauanTech19/sales-intelligence-platform]
-cd sales-intelligence-platform
-streamlit run Back_end/interface_streamlit/interface.py
-
 
 ### Instalar as dependências:
 ```bash
 pip install -r requirements.txt
 
 
-```bash
 pip freeze > requirements.txt
 
+## Executar a aplicação:
+git clone [https://github.com/cauanTech19/sales-intelligence-platform]
+
+cd sales-intelligence-platform
+
+streamlit run Back_end/interface_streamlit/interface.py
