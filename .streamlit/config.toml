@@ -1,0 +1,15 @@
+[theme]
+# Fundo principal: Um azul-carbono escuro espacial
+backgroundColor = "#0c0c0d"
+
+# Fundo secundário (Sidebar e cards): Um tom ligeiramente mais claro para dar contraste
+secondaryBackgroundColor = "#171616"
+
+# Texto principal: Branco puro para máxima leitura
+textColor = "#FFFFFF"
+
+# Cor de destaque (Botões, foco e links): Ciano Neon tecnológico
+primaryColor = "#b00000"
+
+# Fonte limpa e moderna
+font = "sans serif"

@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Engine
+from sqlalchemy import create_engine, Engine, event  # 1. ADICIONADO O "event" AQUI
 from sqlalchemy.exc import ArgumentError, SQLAlchemyError
 
 def inicializar_banco(url_conexao: str = "sqlite:///storage.db") -> Engine:
@@ -23,7 +23,15 @@ def inicializar_banco(url_conexao: str = "sqlite:///storage.db") -> Engine:
         # Cria o engine
         engine = create_engine(url_conexao)
         
-        # Faz um "ping" no banco de dados para testar a conexão real
+        # 🔒 2. ADICIONADO AQUI: Força o SQLite a ativar as Foreign Keys
+        # Esse evento roda automaticamente SEMPRE que uma nova conexão for aberta
+        @event.listens_for(engine, "connect")
+        def set_sqlite_pragma(dbapi_connection, connection_record):
+            cursor = dbapi_connection.cursor()
+            cursor.execute("PRAGMA foreign_keys=ON")
+            cursor.close()
+        
+        # Faz um "ping" no banco de dados para testar a conexão real (Já com FK ativa!)
         with engine.connect() as conexao:
             print("[Banco de Dados] Conexão estabelecida com sucesso!")
             
@@ -31,7 +39,7 @@ def inicializar_banco(url_conexao: str = "sqlite:///storage.db") -> Engine:
 
     except ArgumentError as e:
         print(f"[Erro Crítico] A URL do banco de dados está mal formatada: {e}")
-        raise e  # Repassa o erro para o sistema saber que não pode continuar
+        raise e  
     except SQLAlchemyError as e:
         print(f"[Erro Crítico] Não foi possível conectar ao banco de dados: {e}")
         raise e
