@@ -31,47 +31,17 @@ Um sistema completo de **Ponto de Venda (PDV)** e **Controle Financeiro/Estoque*
 
 ---
 
-## 🏗️ Arquitetura e Estrutura do Projeto
-
-O projeto é modularizado para manter o código limpo e de fácil manutenção:
-
-STRORAGE_IA/
-├── .streamlit/             # Configurações de tema e layout do Streamlit
-├── Back_end/               # Regras de negócio, modelos e serviços
-│   ├── interface_streamlit/ # Telas e componentes da interface gráfica
-│   ├── tests/              # Suíte de testes automatizados (Pytest)
-│   ├── agente_ia.py        # Agente/Serviço de Inteligência Artificial
-│   ├── app.py              # Ponto de entrada e inicialização do banco
-│   ├── auth_admin.py       # Módulo de autenticação e permissões
-│   ├── categoria.py        # Gestão de categorias de produtos
-│   ├── cliente.py          # Gestão e cadastro de clientes
-│   ├── dashboards.py       # Indicadores e gráficos de desempenho
-│   ├── item.py             # Validação e gerenciamento dos itens da venda
-│   ├── models.py           # Mapeamento do banco de dados (SQLAlchemy)
-│   ├── movimentacao.py     # Controle de movimentações de estoque
-│   ├── pagamento.py        # Regras de registro e estorno de pagamentos
-│   ├── produto.py          # CRUD e controle de produtos
-│   ├── validador.py        # Módulo de validação de dados
-│   └── vendas.py           # Regras de negócio do PDV e cancelamentos
-├── .gitignore              # Arquivos ignorados pelo Git
-├── README.md               # Documentação principal do projeto
-├── requirements.txt        # Dependências e bibliotecas do projeto
+## Executar a aplicação:
+git clone [https://github.com/cauanTech19/sales-intelligence-platform]
+cd sales-intelligence-platform
+streamlit run Back_end/interface_streamlit/interface.py
 
 
-### 3. Instalar as dependências
+### Instalar as dependências:
 ```bash
 pip install -r requirements.txt
-
-
-E para gerar o arquivo atualizado direto do seu ambiente no VS Code/Terminal com as versões exatas que você usou, você também pode rodar:
 
 
 ```bash
 pip freeze > requirements.txt
 
-
-
-4. Executar a aplicação:
-git clone [https://github.com/cauanTech19/sales-intelligence-platform]
-cd sales-intelligence-platform
-streamlit run Back_end/interface_streamlit/interface.py
